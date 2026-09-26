@@ -820,3 +820,196 @@ a:focus-visible, button:focus-visible {
 .intro-pending [data-split] .w > span { animation-delay: calc(var(--i) * 70ms + 1350ms); }
 .intro-pending .grad .w > span { animation-delay: calc(var(--i) * 70ms + 1350ms), 0s; }
 @media (max-width: 359px) { .brand__name { display: none; } }
+
+/* =============================================================
+   Round 3: large portrait stage, career strip, more motion
+   ============================================================= */
+:root { --intro: 0ms; }
+.intro-pending { --intro: 1200ms; }
+
+@media (min-width: 900px) {
+  .hero-grid { grid-template-columns: 1.1fr 0.9fr; }
+}
+
+/* Portrait stage */
+.stage { position: relative; width: min(100%, 340px); aspect-ratio: 1; margin: 0 auto; }
+@media (min-width: 900px) { .stage { width: min(100%, 460px); } }
+.stage__depth {
+  position: absolute; inset: 0;
+  transform: translate3d(var(--tx, 0px), var(--ty, 0px), 0);
+  transition: transform 700ms var(--ease-out);
+}
+.halo, .halo__glow { position: absolute; left: 7%; right: 7%; top: 11%; aspect-ratio: 1; border-radius: 50%; }
+.halo {
+  background: linear-gradient(160deg, oklch(0.62 0.17 250 / 0.55), oklch(0.5 0.15 285 / 0.35));
+  animation: halo-in 900ms var(--ease-out) both; animation-delay: calc(var(--intro) + 150ms);
+}
+.halo::before {
+  content: ""; position: absolute; inset: -6px; border-radius: 50%;
+  background: conic-gradient(from 0deg, transparent 0 55%, var(--brand-400) 75%, oklch(0.84 0.1 280) 90%, transparent);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1.5px));
+          mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1.5px));
+  animation: spin 9s linear infinite;
+}
+.halo__glow { background: oklch(0.62 0.18 250); filter: blur(60px); opacity: 0.35; animation: breathe 5s ease-in-out infinite alternate; }
+@keyframes halo-in { from { opacity: 0; transform: scale(0.6); } to { opacity: 1; transform: none; } }
+@keyframes breathe { from { transform: scale(0.92); opacity: 0.25; } to { transform: scale(1.08); opacity: 0.45; } }
+
+.orbit {
+  position: absolute; inset: 1%; border-radius: 50%;
+  box-shadow: inset 0 0 0 1px oklch(1 0 0 / 0.08);
+  animation: spin 40s linear infinite, fade-in 900ms var(--ease-out) both;
+  animation-delay: 0s, calc(var(--intro) + 400ms);
+}
+.orbit__dot {
+  position: absolute; left: 50%; top: -4px; width: 8px; height: 8px; margin-left: -4px;
+  border-radius: 50%; background: var(--brand-400); box-shadow: 0 0 12px oklch(0.75 0.14 250 / 0.8);
+}
+.orbit__dot--b { top: auto; bottom: 14%; left: 3%; background: oklch(0.8 0.12 280); }
+.orbit__dot--c { top: 30%; left: auto; right: -4px; width: 6px; height: 6px; background: var(--success); box-shadow: 0 0 10px oklch(0.72 0.17 145 / 0.7); }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+
+.stage__photo img {
+  position: absolute; left: 50%; bottom: 0; width: 94%; height: auto; margin-left: -47%;
+  -webkit-mask-image: linear-gradient(to bottom, #000 72%, transparent 98%), linear-gradient(to right, transparent 2%, #000 16%, #000 84%, transparent 98%);
+  -webkit-mask-composite: source-in;
+          mask-image: linear-gradient(to bottom, #000 72%, transparent 98%), linear-gradient(to right, transparent 2%, #000 16%, #000 84%, transparent 98%);
+          mask-composite: intersect;
+  animation: photo-in 1100ms var(--ease-out) both; animation-delay: calc(var(--intro) + 350ms);
+  filter: drop-shadow(0 24px 40px oklch(0 0 0 / 0.35));
+}
+@keyframes photo-in { from { opacity: 0; transform: translateY(48px) scale(0.96); } to { opacity: 1; transform: none; } }
+
+.badge-float {
+  position: absolute; display: inline-flex; align-items: center; gap: var(--s-element);
+  padding: 8px 12px; border-radius: var(--r-standard);
+  background: oklch(0.24 0.01 250 / 0.9); box-shadow: inset 0 0 0 1px var(--hairline);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  font-size: var(--t-caption); line-height: var(--lh-caption); font-weight: 600; color: var(--text-heading);
+  white-space: nowrap;
+  animation: badge-pop 600ms var(--spring-press) both, bob 6s ease-in-out infinite alternate;
+}
+.badge-float__dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+.badge-float--a { left: -2%; top: 16%; animation-delay: calc(var(--intro) + 900ms), calc(var(--intro) + 1500ms); }
+.badge-float--b { right: -4%; top: 48%; animation-delay: calc(var(--intro) + 1050ms), calc(var(--intro) + 1700ms); animation-duration: 600ms, 7s; }
+.badge-float--c { left: 4%; bottom: 10%; animation-delay: calc(var(--intro) + 1200ms), calc(var(--intro) + 1900ms); animation-duration: 600ms, 5.5s; }
+@keyframes badge-pop { from { opacity: 0; transform: scale(0.7) translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes bob { from { transform: translateY(0); } to { transform: translateY(-10px); } }
+
+/* Career strip */
+.journey { padding-top: var(--s-section); }
+.journey .container { position: relative; }
+.journey__list { position: relative; display: grid; gap: var(--s-title); padding-left: 32px; }
+.journey__step { position: relative; }
+.journey__dot {
+  position: absolute; left: -32px; top: 0; width: 16px; height: 16px; border-radius: 50%;
+  background: var(--raised); box-shadow: 0 0 0 4px var(--bg); z-index: 1;
+}
+.journey__step.is-current .journey__dot { background: var(--brand-500); box-shadow: 0 0 0 4px var(--bg), 0 0 0 8px var(--brand-tint); }
+.journey__role { margin-top: 4px; font-weight: 600; color: var(--text-heading); }
+.journey__step.is-current .journey__role { color: var(--brand-400); }
+.journey__org { color: var(--text-body); }
+.journey__line {
+  position: absolute; left: calc(var(--s-outer) + 7px); top: 8px; bottom: 8px; width: 2px;
+  background: var(--card); border-radius: 2px; overflow: hidden;
+}
+.journey__fill {
+  display: block; width: 100%; height: 100%;
+  background: linear-gradient(var(--raised), var(--brand-500));
+  transform: scaleY(0); transform-origin: top; transition: transform 1400ms var(--ease-out);
+}
+.journey.is-in .journey__fill { transform: none; }
+@media (min-width: 720px) {
+  .journey__list { grid-template-columns: repeat(3, 1fr); padding-left: 0; padding-top: 32px; }
+  .journey__dot { left: 0; top: -32px; }
+  .journey__line { left: var(--s-outer); right: var(--s-outer); top: 7px; bottom: auto; width: auto; height: 2px; }
+  .journey__fill { background: linear-gradient(90deg, var(--raised), var(--brand-500)); transform: scaleX(0); transform-origin: left; }
+}
+.js-reveal-ready .journey__step { opacity: 0; transform: translateY(12px); transition: opacity 600ms var(--ease-out), transform 600ms var(--ease-out); transition-delay: calc(var(--s) * 380ms + 250ms); }
+.js-reveal-ready .journey.is-in .journey__step { opacity: 1; transform: none; }
+.js-reveal-ready .journey__dot { transform: scale(0); transition: transform 500ms var(--spring-press); transition-delay: calc(var(--s) * 380ms + 250ms); }
+.js-reveal-ready .journey.is-in .journey__dot { transform: none; }
+
+/* Scroll-driven ticker (script takes over from the CSS loop) */
+.ticker--js .ticker__track { animation: none; will-change: transform; }
+
+/* Shine sweep on primary buttons */
+.shine { position: relative; overflow: hidden; isolation: isolate; }
+.shine::after {
+  content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: 40%; z-index: -1;
+  background: linear-gradient(100deg, transparent, oklch(1 0 0 / 0.35), transparent);
+  transform: translateX(-150%) skewX(-20deg); animation: sweep 4.5s ease-in-out infinite; animation-delay: calc(var(--intro) + 2s);
+  pointer-events: none;
+}
+@keyframes sweep { 0% { transform: translateX(-150%) skewX(-20deg); } 30%, 100% { transform: translateX(350%) skewX(-20deg); } }
+
+/* Rotating gradient border on hover */
+@property --angle { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
+.glow::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none;
+  background: conic-gradient(from var(--angle), transparent 0 65%, var(--brand-400) 80%, oklch(0.84 0.1 280) 90%, transparent);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  opacity: 0; transition: opacity 300ms var(--ease-out);
+}
+@media (hover: hover) and (pointer: fine) {
+  .glow:hover::after { opacity: 1; animation: angle 3s linear infinite; }
+}
+@keyframes angle { to { --angle: 360deg; } }
+
+/* Stat number pops when its count finishes */
+.stat__pop { transform-origin: left center; }
+.stat__pop.popped { animation: stat-pop 520ms var(--spring-press); }
+@keyframes stat-pop { 40% { transform: scale(1.12); } 100% { transform: none; } }
+
+/* Experience cards slide in from the timeline side */
+.js-reveal-ready .roles > [data-reveal] { transform: translateX(-24px); }
+.js-reveal-ready .roles > [data-reveal].is-visible { transform: none; }
+
+/* Tab icon bounce when it becomes active */
+.tab.is-active .i-fill { animation: tab-pop 450ms var(--spring-press); }
+@keyframes tab-pop { 0% { transform: scale(0.7); } 60% { transform: scale(1.15); } 100% { transform: none; } }
+
+/* Big name marquee scrubbed by scroll */
+.bigname {
+  overflow: hidden; padding: var(--s-section) 0 var(--s-card);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+          mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+}
+.bigname__track {
+  display: flex; gap: var(--s-section); width: max-content;
+  font-size: var(--t-display); line-height: var(--lh-display); letter-spacing: -0.03em; font-weight: 700;
+  color: transparent; -webkit-text-stroke: 1px oklch(1 0 0 / 0.2);
+  transform: translate3d(var(--bx, 0px), 0, 0); white-space: nowrap;
+}
+.bigname__alt { -webkit-text-stroke: 1px oklch(0.75 0.14 250 / 0.5); }
+
+/* Back to top with scroll progress ring */
+.to-top {
+  position: fixed; right: var(--s-outer); bottom: calc(var(--s-outer) + env(safe-area-inset-bottom)); z-index: 55;
+  width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--card); color: var(--text-heading);
+  opacity: 0; transform: translateY(16px) scale(0.9); pointer-events: none;
+  transition: opacity 300ms var(--ease-out), transform 400ms var(--spring-press);
+}
+.to-top.is-shown { opacity: 1; transform: none; pointer-events: auto; }
+.to-top.is-shown.is-pressed { transform: scale(0.95); }
+@media (max-width: 899px) { .to-top { bottom: calc(var(--tab-height) + 16px + env(safe-area-inset-bottom)); } }
+.to-top__ring { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
+.to-top__ring circle { fill: none; stroke-width: 2; stroke: var(--raised); }
+.to-top__ring .to-top__progress { stroke: var(--brand-400); stroke-linecap: round; stroke-dasharray: 138.2; stroke-dashoffset: calc(138.2 * (1 - var(--p, 0))); }
+.to-top__arrow { width: 20px; height: 20px; position: relative; }
+
+/* Reduced motion for round 3 */
+@media (prefers-reduced-motion: reduce) {
+  .halo, .halo::before, .halo__glow, .orbit, .stage__photo img, .badge-float, .shine::after, .glow:hover::after, .stat__pop.popped, .tab.is-active .i-fill { animation: none !important; }
+  .stage__depth { transform: none !important; transition: none; }
+  .journey__fill { transform: none !important; transition: none; }
+  .journey__step, .journey__dot { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .bigname__track { transform: none !important; }
+  .to-top { transition: opacity 150ms linear; }
+}
+
+@media (max-width: 480px) {
+  .hero-actions .btn { flex: 1 1 100%; }
+}

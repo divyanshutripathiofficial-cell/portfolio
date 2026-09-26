@@ -322,3 +322,106 @@
     });
   }
 })();
+
+/* ---------- Round 3 motion ---------- */
+(() => {
+  "use strict";
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+  const clamp = (v, a, b) => Math.min(Math.max(v, a), b);
+
+  /* Back to top: show after the hero, ring shows scroll progress */
+  const toTop = document.querySelector(".to-top");
+  const bigTrack = document.querySelector(".bigname__track");
+  let raf = false;
+  const onScroll = () => {
+    raf = false;
+    const max = document.documentElement.scrollHeight - innerHeight;
+    if (toTop) {
+      toTop.classList.toggle("is-shown", scrollY > 600);
+      toTop.style.setProperty("--p", max > 0 ? (scrollY / max).toFixed(4) : 0);
+    }
+    if (bigTrack && !reduceMotion) {
+      const r = bigTrack.getBoundingClientRect();
+      if (r.top < innerHeight && r.bottom > 0) {
+        const p = 1 - r.top / innerHeight; // 0 when entering, grows as you scroll
+        bigTrack.style.setProperty("--bx", `${(-p * 260).toFixed(1)}px`);
+      }
+    }
+  };
+  window.addEventListener("scroll", () => { if (!raf) { raf = true; requestAnimationFrame(onScroll); } }, { passive: true });
+  onScroll();
+
+  if (reduceMotion) return;
+
+  /* Career strip: draw the line and bring steps in one by one */
+  const journey = document.querySelector(".journey");
+  if (journey && "IntersectionObserver" in window) {
+    const jo = new IntersectionObserver((entries, obs) => {
+      entries.forEach((e) => { if (e.isIntersecting) { journey.classList.add("is-in"); obs.disconnect(); } });
+    }, { threshold: 0.35 });
+    jo.observe(journey);
+    setTimeout(() => journey.classList.add("is-in"), 4000);
+  } else if (journey) {
+    journey.classList.add("is-in");
+  }
+
+  /* Stat numbers pop once their count-up finishes */
+  const pops = document.querySelectorAll(".stat__pop");
+  if (pops.length && "IntersectionObserver" in window) {
+    const po = new IntersectionObserver((entries, obs) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        setTimeout(() => e.target.classList.add("popped"), 1150);
+        obs.unobserve(e.target);
+      });
+    }, { threshold: 0.6 });
+    pops.forEach((el) => po.observe(el));
+  }
+
+  /* Ticker: steady drift that speeds up while the page is scrolling */
+  const ticker = document.querySelector(".ticker");
+  const track = ticker && ticker.querySelector(".ticker__track");
+  if (ticker && track) {
+    ticker.classList.add("ticker--js");
+    let x = 0, boost = 0, lastY = scrollY, paused = false, last = performance.now();
+    const BASE = 40; // px per second
+    ticker.addEventListener("pointerenter", () => { paused = true; });
+    ticker.addEventListener("pointerleave", () => { paused = false; });
+    window.addEventListener("scroll", () => {
+      boost = Math.min(boost + Math.abs(scrollY - lastY) * 6, 1600);
+      lastY = scrollY;
+    }, { passive: true });
+    const step = (now) => {
+      const dt = Math.min((now - last) / 1000, 0.05);
+      last = now;
+      if (!paused) {
+        x -= (BASE + boost) * dt;
+        const half = track.scrollWidth / 2;
+        if (half > 0 && -x >= half) x += half;
+        track.style.transform = `translate3d(${x.toFixed(2)}px, 0, 0)`;
+      }
+      boost *= 0.92;
+      requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+
+  /* Portrait depth: layers drift at different speeds with the mouse */
+  const stage = document.querySelector(".stage");
+  const hero = document.querySelector(".hero");
+  if (finePointer && stage && hero) {
+    const layers = [...stage.querySelectorAll("[data-depth]")];
+    const RANGE = 36; // px at depth 1
+    hero.addEventListener("pointermove", (e) => {
+      const nx = e.clientX / innerWidth - 0.5;
+      const ny = e.clientY / innerHeight - 0.5;
+      layers.forEach((l) => {
+        const d = parseFloat(l.dataset.depth);
+        l.style.setProperty("--tx", `${(nx * d * RANGE).toFixed(1)}px`);
+        l.style.setProperty("--ty", `${(ny * d * RANGE).toFixed(1)}px`);
+      });
+    });
+    hero.addEventListener("pointerleave", () => layers.forEach((l) => { l.style.setProperty("--tx", "0px"); l.style.setProperty("--ty", "0px"); }));
+  }
+})();
