@@ -3,3 +3,5 @@ node_modules/
 build_resume.js
 *.pdf
 *.jpg
+!assets/*.pdf
+!assets/*.jpg
