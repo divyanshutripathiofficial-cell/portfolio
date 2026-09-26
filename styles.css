@@ -535,3 +535,168 @@ a:focus-visible, button:focus-visible {
   :root { --hairline: oklch(1 0 0 / 0.3); --text-caption: oklch(0.78 0.01 280); }
   .card { box-shadow: inset 0 0 0 1px oklch(1 0 0 / 0.3); }
 }
+
+/* =============================================================
+   Aesthetic and motion layer
+   Everything animated uses transform or opacity only. Each
+   effect has a reduced-motion fallback at the bottom.
+   ============================================================= */
+
+/* Scroll progress */
+.progress { position: fixed; inset: 0 0 auto 0; height: 2px; z-index: 70; pointer-events: none; }
+.progress span {
+  display: block; height: 100%;
+  background: linear-gradient(90deg, var(--brand-500), oklch(0.78 0.12 280));
+  transform: scaleX(var(--p, 0)); transform-origin: left;
+}
+
+/* Aurora behind the hero */
+.hero::before { display: none; }
+.aurora { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.blob {
+  position: absolute; width: 520px; height: 520px; border-radius: 50%;
+  filter: blur(80px); opacity: 0.35; will-change: transform;
+}
+.blob--a { top: -200px; left: -120px; background: oklch(0.62 0.18 250); animation: drift-a 22s ease-in-out infinite alternate; }
+.blob--b { top: -80px; right: -200px; background: oklch(0.6 0.16 285); opacity: 0.25; animation: drift-b 26s ease-in-out infinite alternate; }
+@keyframes drift-a { to { transform: translate3d(160px, 120px, 0) scale(1.15); } }
+@keyframes drift-b { to { transform: translate3d(-140px, 160px, 0) scale(0.9); } }
+
+/* Gradient on the key phrase (brand hue only) */
+.grad {
+  background: linear-gradient(100deg, var(--brand-400) 0%, oklch(0.82 0.1 280) 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+
+/* Hero entrance: pieces rise in on a stagger (--d is the step) */
+.js-motion .hero-in { opacity: 0; transform: translateY(16px); animation: rise 720ms var(--ease-out) forwards; animation-delay: calc(var(--d, 0) * 90ms + 120ms); }
+.js-motion [data-split] .w { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: 0.08em; margin-bottom: -0.08em; }
+.js-motion [data-split] .w > span { display: inline-block; transform: translateY(105%); animation: word 800ms var(--ease-out) forwards; animation-delay: calc(var(--i) * 70ms + 200ms); }
+.js-motion [data-split] .grad .w > span {
+  background: linear-gradient(100deg, var(--brand-400) 0%, oklch(0.82 0.1 280) 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+@keyframes rise { to { opacity: 1; transform: none; } }
+@keyframes word { to { transform: none; } }
+
+/* Rotating "currently shipping" line */
+.rotator { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-micro); margin-top: var(--s-card); }
+.rotator__label { padding: 4px 8px; border-radius: var(--r-standard); background: var(--card); }
+.rotator__window { display: inline-block; height: var(--lh-body); overflow: hidden; }
+.rotator__track { display: flex; flex-direction: column; animation: roll 10s var(--ease-out) infinite; }
+.rotator__track span { height: var(--lh-body); font-weight: 600; color: var(--text-heading); white-space: nowrap; }
+@keyframes roll {
+  0%, 18%  { transform: translateY(0); }
+  25%, 43% { transform: translateY(-24px); }
+  50%, 68% { transform: translateY(-48px); }
+  75%, 93% { transform: translateY(-72px); }
+  100%     { transform: translateY(-96px); }
+}
+
+/* Profile card with photo */
+.profile { position: relative; overflow: hidden; }
+.profile__top { display: flex; align-items: center; gap: var(--s-card); margin-bottom: var(--s-title); }
+.profile__role { margin-top: 4px; }
+.avatar { position: relative; width: 88px; height: 88px; flex-shrink: 0; }
+.avatar__ring {
+  position: absolute; inset: -6px; border-radius: 50%; opacity: 0.9;
+  background: conic-gradient(from 0deg, var(--brand-500), oklch(0.8 0.12 280), var(--brand-tint), var(--brand-500));
+  animation: spin 8s linear infinite;
+}
+.avatar__inner {
+  position: absolute; inset: 0; border-radius: 50%; overflow: hidden;
+  background: var(--raised); box-shadow: 0 0 0 3px var(--card);
+  display: grid; place-items: center;
+}
+.avatar__inner img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; }
+.avatar__mono { font-size: var(--t-h2); line-height: var(--lh-h2); font-weight: 700; color: var(--brand-400); }
+@keyframes spin { to { transform: rotate(1turn); } }
+.profile .hero-meta { margin-top: var(--s-title); grid-template-columns: repeat(2, auto); }
+@media (min-width: 900px) {
+  .avatar { width: 104px; height: 104px; }
+  .hero .display { max-width: 15ch; }
+}
+
+/* Ticker */
+.ticker {
+  overflow: hidden; padding: var(--s-card) 0;
+  box-shadow: 0 -1px 0 var(--hairline), 0 1px 0 var(--hairline);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+          mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+}
+.ticker__track { display: flex; width: max-content; animation: marquee 40s linear infinite; }
+.ticker:hover .ticker__track { animation-play-state: paused; }
+.ticker__list { display: flex; gap: var(--s-micro); padding-right: var(--s-micro); }
+.ticker__list li {
+  padding: 6px 12px; border-radius: var(--r-standard); background: var(--card);
+  font-size: var(--t-small); line-height: var(--lh-small); color: var(--text-body); white-space: nowrap;
+}
+@keyframes marquee { to { transform: translateX(-50%); } }
+
+/* Staggered reveal inside grids (--i set by script) */
+.js-reveal-ready [data-stagger] > [data-reveal] { transition-delay: calc(var(--i, 0) * 80ms); }
+.js-reveal-ready [data-reveal] { transform: translateY(24px) scale(0.98); }
+
+/* Cursor spotlight on cards (fine pointers only) */
+.spot { position: relative; isolation: isolate; }
+.spot::before {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; z-index: -1;
+  background: radial-gradient(320px circle at var(--mx, 50%) var(--my, 50%), oklch(0.68 0.17 250 / 0.12), transparent 60%);
+  opacity: 0; transition: opacity 300ms var(--ease-out);
+}
+@media (hover: hover) and (pointer: fine) {
+  .spot:hover::before { opacity: 1; }
+}
+
+/* 3D tilt (fine pointers only) */
+.tilt { transform-style: preserve-3d; }
+.tilt.is-tilting { transition: transform 80ms linear; }
+.tilt:not(.is-tilting) { transition: transform 600ms var(--spring-press), opacity 480ms var(--ease-out); }
+.tilt .stream__icon { transition: transform 400ms var(--spring-press); }
+@media (hover: hover) and (pointer: fine) {
+  .tilt:hover .stream__icon { transform: translateY(-4px) scale(1.06); }
+}
+
+/* Magnetic buttons */
+.magnetic { transition: transform 400ms var(--spring-press), background-color 150ms var(--ease-out); }
+
+/* Experience timeline rail that draws on scroll */
+.roles { position: relative; padding-left: 24px; }
+.rail { position: absolute; left: 7px; top: 24px; bottom: 24px; width: 2px; background: var(--card); border-radius: 2px; overflow: hidden; }
+.rail__fill { display: block; width: 100%; height: 100%; background: linear-gradient(var(--brand-500), oklch(0.78 0.12 280)); transform: scaleY(var(--rail, 0)); transform-origin: top; }
+.role::after {
+  content: ""; position: absolute; left: -22px; top: 28px; width: 12px; height: 12px; border-radius: 50%;
+  background: var(--raised); box-shadow: 0 0 0 4px var(--bg);
+}
+.role:first-of-type::after { background: var(--brand-500); box-shadow: 0 0 0 4px var(--bg), 0 0 0 8px var(--brand-tint); }
+
+/* Contact glow */
+.contact__card { position: relative; overflow: hidden; }
+.contact__glow {
+  position: absolute; right: -120px; top: -160px; width: 360px; height: 360px; border-radius: 50%;
+  background: oklch(0.62 0.18 250); filter: blur(90px); opacity: 0.25; pointer-events: none;
+  animation: drift-b 18s ease-in-out infinite alternate;
+}
+.contact__card > *:not(.contact__glow) { position: relative; }
+
+/* Sliding tab indicator */
+.tab-bar { position: fixed; }
+.tab-indicator {
+  position: absolute; top: 0; left: var(--s-micro); height: 3px;
+  width: calc((100% - 2 * var(--s-micro)) / 5);
+  display: flex; justify-content: center; pointer-events: none;
+  transform: translateX(calc(var(--tab, -1) * 100%));
+  transition: transform 420ms var(--spring-press), opacity 200ms linear;
+  opacity: var(--tab-on, 0);
+}
+.tab-indicator::after { content: ""; width: 24px; height: 3px; border-radius: 0 0 3px 3px; background: var(--brand-400); }
+
+/* Reduced motion: keep everything visible and still */
+@media (prefers-reduced-motion: reduce) {
+  .blob, .avatar__ring, .contact__glow, .ticker__track, .rotator__track { animation: none !important; }
+  .js-motion .hero-in, .js-motion [data-split] .w > span { animation: none !important; opacity: 1 !important; transform: none !important; }
+  .tilt, .magnetic { transform: none !important; }
+  .ticker__track { flex-wrap: wrap; width: auto; }
+  .ticker__list[aria-hidden] { display: none; }
+  .tab-indicator { transition: none; }
+}
