@@ -1,158 +1,111 @@
 (() => {
   "use strict";
 
-  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  /* ---------------------------------------------------------
-     Scroll-reveal (IntersectionObserver, transform/opacity only)
-     Arm the hide-then-reveal CSS only once we're guaranteed to be
-     able to un-hide it — otherwise every section stays visible.
-     --------------------------------------------------------- */
+  /* Reveal on scroll. The hide state is only armed here, so if this
+     script never runs every section stays visible. */
   const revealEls = document.querySelectorAll("[data-reveal]");
-
-  if (revealEls.length && !prefersReducedMotion && "IntersectionObserver" in window) {
+  if (revealEls.length && !reduceMotion && "IntersectionObserver" in window) {
     document.documentElement.classList.add("js-reveal-ready");
-
-    const revealObserver = new IntersectionObserver(
-      (entries, observer) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("is-visible");
-            observer.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.15, rootMargin: "0px 0px -40px 0px" }
-    );
-    revealEls.forEach((el) => revealObserver.observe(el));
-
-    // Safety net: if anything is still hidden a couple seconds after
-    // load (fonts/layout shift caused it to never intersect, a tab
-    // opened in the background, etc.), reveal it anyway.
-    window.setTimeout(() => {
-      revealEls.forEach((el) => el.classList.add("is-visible"));
-    }, 2500);
+    const io = new IntersectionObserver((entries, obs) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) {
+          e.target.classList.add("is-visible");
+          obs.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: "0px 0px -32px 0px" });
+    revealEls.forEach((el) => io.observe(el));
+    // Safety net in case something never intersects
+    setTimeout(() => revealEls.forEach((el) => el.classList.add("is-visible")), 2500);
   }
 
-  /* ---------------------------------------------------------
-     Mobile nav toggle
-     --------------------------------------------------------- */
-  const navToggle = document.getElementById("navToggle");
-  const navPanel = document.getElementById("navPanel");
+  /* Press state: scale to 0.95 on pointer-down, cancel if the finger
+     moves more than 10px (a scroll) or leaves. Haptic weight follows
+     the action: light tick for navigation, medium for primary actions. */
+  const HAPTIC = { light: 15, medium: 30 };
+  const CANCEL_DISTANCE = 10;
 
-  if (navToggle && navPanel) {
-    const closeNav = () => {
-      navToggle.setAttribute("aria-expanded", "false");
-      navPanel.classList.remove("is-open");
-      navToggle.setAttribute("aria-label", "Open menu");
-    };
-    const openNav = () => {
-      navToggle.setAttribute("aria-expanded", "true");
-      navPanel.classList.add("is-open");
-      navToggle.setAttribute("aria-label", "Close menu");
+  document.querySelectorAll(".pressable").forEach((el) => {
+    let startX = 0;
+    let startY = 0;
+    let active = false;
+
+    const release = () => {
+      active = false;
+      el.classList.remove("is-pressed");
     };
 
-    navToggle.addEventListener("click", () => {
-      const isOpen = navToggle.getAttribute("aria-expanded") === "true";
-      isOpen ? closeNav() : openNav();
+    el.addEventListener("pointerdown", (e) => {
+      if (e.button !== 0) return;
+      active = true;
+      startX = e.clientX;
+      startY = e.clientY;
+      el.classList.add("is-pressed");
+      const weight = HAPTIC[el.dataset.haptic];
+      if (weight && navigator.vibrate) navigator.vibrate(weight);
     });
 
-    navPanel.querySelectorAll("a").forEach((link) => {
-      link.addEventListener("click", closeNav);
+    el.addEventListener("pointermove", (e) => {
+      if (!active) return;
+      if (Math.hypot(e.clientX - startX, e.clientY - startY) > CANCEL_DISTANCE) release();
     });
 
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") closeNav();
-    });
-  }
+    ["pointerup", "pointercancel", "pointerleave"].forEach((type) => el.addEventListener(type, release));
+  });
 
-  /* ---------------------------------------------------------
-     Animated impact counters
-     --------------------------------------------------------- */
+  window.addEventListener("scroll", () => {
+    document.querySelectorAll(".pressable.is-pressed").forEach((el) => el.classList.remove("is-pressed"));
+  }, { passive: true });
+
+  /* Count-up for the stats. The HTML already holds the final value,
+     so the numbers are correct even without this. */
   const counters = document.querySelectorAll("[data-counter]");
-
-  function animateCounter(el) {
-    const target = parseFloat(el.dataset.target || "0");
-    const suffix = el.dataset.suffix || "";
-    const duration = 1100;
-    const start = performance.now();
-
-    function tick(now) {
-      const elapsed = now - start;
-      const progress = Math.min(elapsed / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
-      const value = Math.round(target * eased);
-      el.textContent = value.toLocaleString() + suffix;
-      if (progress < 1) requestAnimationFrame(tick);
-    }
-
-    if (prefersReducedMotion) {
-      el.textContent = target.toLocaleString() + suffix;
-    } else {
+  if (counters.length && !reduceMotion && "IntersectionObserver" in window) {
+    const run = (el) => {
+      const target = Number(el.dataset.target);
+      const suffix = el.dataset.suffix || "";
+      const start = performance.now();
+      const duration = 900;
+      const tick = (now) => {
+        const p = Math.min((now - start) / duration, 1);
+        const eased = 1 - Math.pow(1 - p, 3);
+        el.textContent = Math.round(target * eased).toLocaleString("en-IN") + suffix;
+        if (p < 1) requestAnimationFrame(tick);
+      };
       requestAnimationFrame(tick);
-    }
+    };
+    const co = new IntersectionObserver((entries, obs) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) {
+          run(e.target);
+          obs.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.5 });
+    counters.forEach((el) => co.observe(el));
   }
 
-  if (counters.length) {
-    if ("IntersectionObserver" in window) {
-      const counterObserver = new IntersectionObserver(
-        (entries, observer) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              animateCounter(entry.target);
-              observer.unobserve(entry.target);
-            }
-          });
-        },
-        { threshold: 0.4 }
-      );
-      counters.forEach((el) => counterObserver.observe(el));
-    } else {
-      counters.forEach(animateCounter);
-    }
-  }
-
-  /* ---------------------------------------------------------
-     Active nav-link highlighting on scroll
-     --------------------------------------------------------- */
+  /* Active section in both the desktop top links and the mobile tab bar */
   const sections = document.querySelectorAll("main section[id]");
-  const navLinks = document.querySelectorAll('.nav-links a[data-nav]');
-
-  if (sections.length && navLinks.length && "IntersectionObserver" in window) {
-    const linkFor = (id) =>
-      document.querySelector(`.nav-links a[href="#${id}"]`);
-
-    const navObserver = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          const link = linkFor(entry.target.id);
-          if (!link) return;
-          if (entry.isIntersecting) {
-            navLinks.forEach((l) => l.classList.remove("is-active"));
-            link.classList.add("is-active");
-          }
-        });
-      },
-      { rootMargin: "-45% 0px -45% 0px", threshold: 0 }
-    );
-
-    sections.forEach((section) => navObserver.observe(section));
+  const links = document.querySelectorAll("[data-nav]");
+  if (sections.length && links.length && "IntersectionObserver" in window) {
+    const setActive = (id) => {
+      links.forEach((l) => {
+        const on = l.getAttribute("href") === `#${id}`;
+        l.classList.toggle("is-active", on);
+        if (on) l.setAttribute("aria-current", "true");
+        else l.removeAttribute("aria-current");
+      });
+    };
+    const nav = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        const id = e.target.id === "background" ? "skills" : e.target.id;
+        setActive(id);
+      });
+    }, { rootMargin: "-45% 0px -50% 0px" });
+    sections.forEach((s) => nav.observe(s));
   }
-
-  /* ---------------------------------------------------------
-     Header shadow / density on scroll
-     --------------------------------------------------------- */
-  const header = document.querySelector(".site-header");
-  let lastScrolled = false;
-
-  function onScroll() {
-    const scrolled = window.scrollY > 8;
-    if (scrolled !== lastScrolled && header) {
-      header.style.borderBottomColor = scrolled
-        ? "rgba(255,255,255,0.14)"
-        : "rgba(255,255,255,0.09)";
-      lastScrolled = scrolled;
-    }
-  }
-  window.addEventListener("scroll", onScroll, { passive: true });
 })();
