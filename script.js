@@ -183,3 +183,142 @@
     sections.forEach((s) => nav.observe(s));
   }
 })();
+
+/* ---------- Round 2 motion ---------- */
+(() => {
+  "use strict";
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+
+  /* Resume download: check mark and label swap after click */
+  document.querySelectorAll(".dl").forEach((btn) => {
+    const label = btn.querySelector(".dl-label");
+    const original = label ? label.textContent : "";
+    btn.addEventListener("click", () => {
+      btn.classList.add("is-done");
+      if (label) label.textContent = label.dataset.done || original;
+      clearTimeout(btn._t);
+      btn._t = setTimeout(() => {
+        btn.classList.remove("is-done");
+        if (label) label.textContent = original;
+      }, 2600);
+    });
+  });
+
+  if (reduceMotion) return;
+
+  /* Section titles: split into words, rise in when they enter the view */
+  const split = (el) => {
+    let i = 0;
+    const walk = (node) => {
+      [...node.childNodes].forEach((child) => {
+        if (child.nodeType === 3) {
+          const frag = document.createDocumentFragment();
+          child.textContent.split(/(\s+)/).forEach((part) => {
+            if (!part) return;
+            if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(part)); return; }
+            const w = document.createElement("span");
+            w.className = "w";
+            w.setAttribute("aria-hidden", "true");
+            const inner = document.createElement("span");
+            inner.textContent = part;
+            inner.style.setProperty("--i", i++);
+            w.appendChild(inner);
+            frag.appendChild(w);
+          });
+          child.replaceWith(frag);
+        } else if (child.nodeType === 1) walk(child);
+      });
+    };
+    el.setAttribute("aria-label", el.textContent.trim());
+    walk(el);
+  };
+
+  const titles = document.querySelectorAll("[data-split-scroll]");
+  titles.forEach(split);
+
+  /* Kicker text scramble */
+  const GLYPHS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  const scramble = (el) => {
+    const target = el.dataset.text || el.textContent;
+    el.dataset.text = target;
+    const start = performance.now();
+    const duration = 650;
+    const tick = (now) => {
+      const p = Math.min((now - start) / duration, 1);
+      const settled = Math.floor(p * target.length);
+      let out = target.slice(0, settled);
+      for (let k = settled; k < target.length; k++) {
+        out += target[k] === " " ? " " : GLYPHS[(Math.random() * GLYPHS.length) | 0];
+      }
+      el.textContent = out;
+      if (p < 1) requestAnimationFrame(tick);
+      else el.textContent = target;
+    };
+    requestAnimationFrame(tick);
+  };
+
+  if ("IntersectionObserver" in window) {
+    const io = new IntersectionObserver((entries, obs) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        if (e.target.hasAttribute("data-split-scroll")) e.target.classList.add("words-in");
+        if (e.target.hasAttribute("data-scramble")) scramble(e.target);
+        obs.unobserve(e.target);
+      });
+    }, { threshold: 0.4 });
+    titles.forEach((t) => io.observe(t));
+    document.querySelectorAll("[data-scramble]").forEach((k) => io.observe(k));
+    setTimeout(() => titles.forEach((t) => t.classList.add("words-in")), 3000);
+  } else {
+    titles.forEach((t) => t.classList.add("words-in"));
+  }
+
+  /* Aurora parallax */
+  const aurora = document.querySelector(".aurora");
+  if (aurora) {
+    let queued = false;
+    window.addEventListener("scroll", () => {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(() => {
+        queued = false;
+        if (scrollY < 1200) aurora.style.setProperty("--py", `${(scrollY * 0.35).toFixed(1)}px`);
+      });
+    }, { passive: true });
+  }
+
+  /* Cursor follower: dot follows exactly, ring trails with a spring */
+  if (finePointer) {
+    const ring = document.createElement("div");
+    const dot = document.createElement("div");
+    ring.className = "cursor is-hidden";
+    dot.className = "cursor-dot is-hidden";
+    ring.setAttribute("aria-hidden", "true");
+    dot.setAttribute("aria-hidden", "true");
+    document.body.append(ring, dot);
+
+    let mx = -100, my = -100, rx = -100, ry = -100, vx = 0, vy = 0, running = false;
+    const STIFFNESS = 0.18, DAMPING = 0.72;
+    const loop = () => {
+      vx = (vx + (mx - rx) * STIFFNESS) * DAMPING;
+      vy = (vy + (my - ry) * STIFFNESS) * DAMPING;
+      rx += vx; ry += vy;
+      ring.style.transform = `translate3d(${rx}px, ${ry}px, 0)`;
+      if (Math.abs(mx - rx) > 0.1 || Math.abs(my - ry) > 0.1 || Math.abs(vx) > 0.1) requestAnimationFrame(loop);
+      else running = false;
+    };
+    window.addEventListener("pointermove", (e) => {
+      if (e.pointerType !== "mouse") return;
+      mx = e.clientX; my = e.clientY;
+      dot.style.transform = `translate3d(${mx}px, ${my}px, 0)`;
+      ring.classList.remove("is-hidden");
+      dot.classList.remove("is-hidden");
+      if (!running) { running = true; requestAnimationFrame(loop); }
+    }, { passive: true });
+    document.addEventListener("pointerleave", () => { ring.classList.add("is-hidden"); dot.classList.add("is-hidden"); });
+    document.addEventListener("pointerover", (e) => {
+      ring.classList.toggle("is-hover", !!e.target.closest("a, button, .chip, .ticker__list li"));
+    });
+  }
+})();

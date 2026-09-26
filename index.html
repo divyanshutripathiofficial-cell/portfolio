@@ -14,10 +14,11 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
-<script>if(!matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("js-motion");</script>
+<script>(function(){var d=document.documentElement;if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;d.classList.add("js-motion");try{if(!sessionStorage.getItem("introSeen")){d.classList.add("intro-pending");sessionStorage.setItem("introSeen","1");}}catch(e){}})();</script>
 </head>
 <body>
 
+<div class="intro" aria-hidden="true"><span class="intro__mark">DT</span><span class="intro__bar"></span></div>
 <a class="skip-link" href="#main">Skip to content</a>
 <div class="progress" aria-hidden="true"><span></span></div>
 
@@ -25,7 +26,7 @@
   <div class="top-bar__inner">
     <a href="#top" class="brand pressable">
       <span class="brand__mark" aria-hidden="true">DT</span>
-      <span>Divyanshu Tripathi</span>
+      <span class="brand__name">Divyanshu Tripathi</span>
     </a>
     <nav class="top-links" aria-label="Sections">
       <a href="#now" data-nav>Now</a>
@@ -34,6 +35,7 @@
       <a href="#skills" data-nav>Skills</a>
       <a href="#contact" data-nav>Contact</a>
     </nav>
+    <a href="/resume.pdf" download="Divyanshu_Tripathi_Resume.pdf" class="btn btn-sm btn-primary magnetic dl pressable" data-haptic="medium"><svg class="dl-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path class="dl-arrow" d="M10 3v9M6 8.5l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 15.5h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><svg class="dl-check" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4.5 10.5l3.5 3.5 7.5-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="dl-label" data-done="Downloaded">Resume</span></a>
   </div>
 </header>
 
@@ -64,11 +66,11 @@
           </span>
         </p>
         <div class="hero-actions hero-in" style="--d:7">
-          <a href="#experience" class="btn btn-primary pressable magnetic" data-haptic="medium">
+          <a href="/resume.pdf" download="Divyanshu_Tripathi_Resume.pdf" class="btn btn-primary magnetic dl pressable" data-haptic="medium"><svg class="dl-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path class="dl-arrow" d="M10 3v9M6 8.5l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 15.5h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><svg class="dl-check" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4.5 10.5l3.5 3.5 7.5-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="dl-label" data-done="Downloaded">Download resume</span></a>
+          <a href="#experience" class="btn btn-secondary pressable magnetic" data-haptic="medium">
             See my work
             <svg class="btn__arrow" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4 10h12M11 5l5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </a>
-          <a href="mailto:divyanshutripathiofficial@gmail.com" class="btn btn-secondary pressable magnetic" data-haptic="medium">Email me</a>
         </div>
       </div>
 
@@ -77,7 +79,7 @@
           <div class="avatar">
             <span class="avatar__ring" aria-hidden="true"></span>
             <span class="avatar__inner">
-              <img src="assets/profile.jpg" alt="Divyanshu Tripathi" width="88" height="88" onerror="this.remove()">
+              <img src="/assets/profile.jpg" alt="Divyanshu Tripathi" width="320" height="320" decoding="async" onerror="this.remove()">
               <span class="avatar__mono" aria-hidden="true">DT</span>
             </span>
           </div>
@@ -134,8 +136,8 @@
   <section class="section" id="now" aria-labelledby="now-title">
     <div class="container">
       <div class="section-head" data-reveal>
-        <p class="kicker">Right now</p>
-        <h2 class="h1" id="now-title">What I work on at Web3Task</h2>
+        <p class="kicker" data-scramble>Right now</p>
+        <h2 class="h1" id="now-title" data-split-scroll>What I work on at Web3Task</h2>
         <p>One AI product, the company's landing page, and the internal tools the team uses every day.</p>
       </div>
 
@@ -199,8 +201,8 @@
   <section class="section" id="experience" aria-labelledby="exp-title">
     <div class="container">
       <div class="section-head" data-reveal>
-        <p class="kicker">Experience</p>
-        <h2 class="h1" id="exp-title">Where I've worked</h2>
+        <p class="kicker" data-scramble>Experience</p>
+        <h2 class="h1" id="exp-title" data-split-scroll>Where I've worked</h2>
       </div>
 
       <div class="roles" data-stagger>
@@ -252,8 +254,8 @@
   <section class="section" id="record" aria-labelledby="record-title">
     <div class="container">
       <div class="section-head" data-reveal>
-        <p class="kicker">Track record</p>
-        <h2 class="h1" id="record-title">Numbers from my time at TechBridge</h2>
+        <p class="kicker" data-scramble>Track record</p>
+        <h2 class="h1" id="record-title" data-split-scroll>Numbers from my time at TechBridge</h2>
         <p>From my time there as a Business Analyst. I'm happy to walk you through the story behind any of them.</p>
       </div>
 
@@ -290,8 +292,8 @@
   <section class="section" id="skills" aria-labelledby="skills-title">
     <div class="container">
       <div class="section-head" data-reveal>
-        <p class="kicker">Skills</p>
-        <h2 class="h1" id="skills-title">What I bring to a team</h2>
+        <p class="kicker" data-scramble>Skills</p>
+        <h2 class="h1" id="skills-title" data-split-scroll>What I bring to a team</h2>
       </div>
 
       <div class="skills" data-stagger>
@@ -363,8 +365,8 @@
   <section class="section" id="background" aria-labelledby="bg-title">
     <div class="container">
       <div class="section-head" data-reveal>
-        <p class="kicker">Background</p>
-        <h2 class="h1" id="bg-title">Education and college life</h2>
+        <p class="kicker" data-scramble>Background</p>
+        <h2 class="h1" id="bg-title" data-split-scroll>Education and college life</h2>
         <p>Running college events taught me what running releases did: a plan is only as good as its handoffs.</p>
       </div>
 
@@ -416,14 +418,15 @@
     <div class="container">
       <div class="card contact__card spot" data-reveal>
         <span class="contact__glow" aria-hidden="true"></span>
-        <p class="kicker">Contact</p>
-        <h2 class="h1" id="contact-title">Want to talk product, delivery, or cybersecurity?</h2>
+        <p class="kicker" data-scramble>Contact</p>
+        <h2 class="h1" id="contact-title" data-split-scroll>Want to talk product, delivery, or cybersecurity?</h2>
         <p class="body">I'm in Noida and working at Web3Task right now. Email is the quickest way to reach me, and I usually reply the same day.</p>
         <div class="contact-actions">
           <a href="mailto:divyanshutripathiofficial@gmail.com" class="btn btn-primary pressable magnetic" data-haptic="medium">
             <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><rect x="2.5" y="4" width="15" height="12" rx="2.5" stroke="currentColor" stroke-width="1.8"/><path d="M3 6l7 5 7-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
             Email me
           </a>
+          <a href="/resume.pdf" download="Divyanshu_Tripathi_Resume.pdf" class="btn btn-secondary dl pressable" data-haptic="medium"><svg class="dl-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path class="dl-arrow" d="M10 3v9M6 8.5l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 15.5h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><svg class="dl-check" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4.5 10.5l3.5 3.5 7.5-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="dl-label" data-done="Downloaded">Download resume</span></a>
           <a href="https://www.linkedin.com/in/divyasnhutripathi/" class="btn btn-secondary pressable" data-haptic="medium" target="_blank" rel="noopener">LinkedIn</a>
         </div>
       </div>

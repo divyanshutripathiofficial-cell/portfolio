@@ -700,3 +700,123 @@ a:focus-visible, button:focus-visible {
   .ticker__list[aria-hidden] { display: none; }
   .tab-indicator { transition: none; }
 }
+
+/* =============================================================
+   Round 2: photo, resume download, extra motion
+   ============================================================= */
+
+/* Top bar resume button */
+.top-links { margin-left: auto; margin-right: var(--s-card); }
+.btn-sm { min-height: 44px; padding: 10px 20px; font-size: var(--t-small); line-height: var(--lh-small); }
+.btn-sm svg { width: 18px; height: 18px; }
+@media (max-width: 380px) { .btn-sm { padding: 10px 14px; } }
+
+/* Download button micro-interaction */
+.dl .dl-check { display: none; }
+.dl.is-done .dl-icon { display: none; }
+.dl.is-done .dl-check { display: block; }
+.dl.is-done .dl-check path { stroke-dasharray: 20; stroke-dashoffset: 20; animation: draw 420ms var(--ease-out) forwards; }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+.dl-arrow { transform-box: fill-box; }
+@media (hover: hover) and (pointer: fine) {
+  .dl:hover .dl-arrow { animation: nudge 900ms var(--ease-out) infinite; }
+}
+@keyframes nudge { 0%, 100% { transform: translateY(0); } 45% { transform: translateY(3px); } }
+
+/* Bigger photo with a gentle float */
+.avatar { width: 112px; height: 112px; animation: float 6s ease-in-out infinite; }
+@media (min-width: 900px) { .avatar { width: 136px; height: 136px; } }
+.avatar__inner img { transition: transform 600ms var(--spring-press); }
+.profile:hover .avatar__inner img { transform: scale(1.06); }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+.avatar::after {
+  content: ""; position: absolute; right: 4px; bottom: 6px; width: 16px; height: 16px; border-radius: 50%;
+  background: var(--success); box-shadow: 0 0 0 3px var(--card); z-index: 2;
+}
+
+/* Headline shimmer across the gradient words */
+.grad, .js-motion [data-split] .grad .w > span {
+  background-size: 200% 100%;
+  animation-name: word, shimmer;
+  animation-duration: 800ms, 6s;
+  animation-timing-function: var(--ease-out), linear;
+  animation-iteration-count: 1, infinite;
+  animation-fill-mode: forwards, none;
+}
+.grad { animation: shimmer 6s linear infinite; }
+.grad, .js-motion [data-split] .grad .w > span {
+  background-image: linear-gradient(100deg, var(--brand-400) 0%, oklch(0.84 0.1 280) 35%, var(--brand-400) 70%, oklch(0.84 0.1 280) 100%);
+}
+@keyframes shimmer { to { background-position: -200% 0; } }
+
+/* Aurora parallax on scroll */
+.aurora { transform: translate3d(0, var(--py, 0px), 0); }
+
+/* Kicker accent line that grows in */
+.kicker { display: flex; align-items: center; gap: var(--s-micro); }
+.kicker::before {
+  content: ""; width: 16px; height: 2px; border-radius: 2px; background: var(--brand-400);
+  transform: scaleX(1); transform-origin: left; transition: transform 600ms var(--ease-out) 200ms;
+}
+.js-reveal-ready [data-reveal]:not(.is-visible) .kicker::before { transform: scaleX(0); }
+
+/* Section titles: words rise in when scrolled into view */
+.js-motion [data-split-scroll] .w { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: 0.1em; margin-bottom: -0.1em; }
+.js-motion [data-split-scroll] .w > span {
+  display: inline-block; transform: translateY(105%);
+  transition: transform 700ms var(--ease-out); transition-delay: calc(var(--i) * 45ms + 80ms);
+}
+.js-motion [data-split-scroll].words-in .w > span { transform: none; }
+
+/* Chips lift on hover */
+@media (hover: hover) and (pointer: fine) {
+  .chip, .ticker__list li { transition: transform 300ms var(--spring-press), background-color 200ms var(--ease-out); }
+  .chip:hover, .ticker__list li:hover { transform: translateY(-3px); background: oklch(0.32 0.01 250); }
+}
+
+/* Intro curtain (inserted by script, once per session) */
+.intro {
+  position: fixed; inset: 0; z-index: 200; background: var(--bg);
+  display: grid; place-items: center;
+  transition: transform 700ms cubic-bezier(0.76, 0, 0.24, 1);
+}
+.intro.is-leaving { transform: translateY(-100%); }
+.intro__mark {
+  width: 64px; height: 64px; border-radius: var(--r-card); display: grid; place-items: center;
+  background: var(--brand-tint); color: var(--brand-400);
+  font-size: var(--t-h2); line-height: var(--lh-h2); font-weight: 700;
+  animation: pop 600ms var(--spring-press) both;
+}
+.intro__bar { position: absolute; left: 50%; top: calc(50% + 56px); width: 120px; height: 2px; margin-left: -60px; background: var(--card); overflow: hidden; border-radius: 2px; }
+.intro__bar::after { content: ""; position: absolute; inset: 0; background: var(--brand-400); transform-origin: left; animation: load 700ms var(--ease-out) forwards; }
+@keyframes pop { from { transform: scale(0.6); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes load { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+/* Cursor follower (fine pointers only, inserted by script) */
+.cursor, .cursor-dot { position: fixed; left: 0; top: 0; z-index: 150; pointer-events: none; border-radius: 50%; }
+.cursor {
+  width: 36px; height: 36px; margin: -18px 0 0 -18px;
+  box-shadow: inset 0 0 0 1.5px oklch(0.75 0.14 250 / 0.6);
+  transition: width 250ms var(--ease-out), height 250ms var(--ease-out), margin 250ms var(--ease-out), opacity 200ms linear, background-color 250ms var(--ease-out);
+}
+.cursor.is-hover { width: 56px; height: 56px; margin: -28px 0 0 -28px; background: oklch(0.68 0.17 250 / 0.12); }
+.cursor-dot { width: 6px; height: 6px; margin: -3px 0 0 -3px; background: var(--brand-400); }
+.cursor.is-hidden, .cursor-dot.is-hidden { opacity: 0; }
+
+/* Reduced motion for round 2 */
+@media (prefers-reduced-motion: reduce) {
+  .avatar, .grad, .js-motion [data-split] .grad .w > span, .dl:hover .dl-arrow { animation: none !important; }
+  .js-motion [data-split-scroll] .w > span { transform: none !important; transition: none; }
+  .kicker::before { transform: none !important; }
+  .aurora { transform: none; }
+  .intro, .cursor, .cursor-dot { display: none; }
+}
+
+/* Intro curtain is pure CSS so it can never get stuck */
+.intro { display: none; }
+.intro-pending .intro { display: grid; animation: curtain 700ms cubic-bezier(0.76, 0, 0.24, 1) 1000ms forwards; }
+@keyframes curtain { to { transform: translateY(-100%); visibility: hidden; } }
+.intro-pending .hero-in { animation-delay: calc(var(--d, 0) * 90ms + 1300ms); }
+.intro-pending [data-split] .w > span { animation-delay: calc(var(--i) * 70ms + 1350ms); }
+.intro-pending .grad .w > span { animation-delay: calc(var(--i) * 70ms + 1350ms), 0s; }
+@media (max-width: 359px) { .brand__name { display: none; } }

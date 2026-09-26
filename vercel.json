@@ -1,0 +1,15 @@
+{
+  "rewrites": [
+    { "source": "/resume.pdf", "destination": "https://cdn.jsdelivr.net/gh/divyanshutripathiofficial-cell/portfolio@334e7c0e2781de42e0c17283639945eceb079c1d/assets/Divyanshu_Tripathi_Resume.pdf" },
+    { "source": "/assets/profile.jpg", "destination": "https://cdn.jsdelivr.net/gh/divyanshutripathiofficial-cell/portfolio@334e7c0e2781de42e0c17283639945eceb079c1d/assets/profile.jpg" }
+  ],
+  "headers": [
+    {
+      "source": "/resume.pdf",
+      "headers": [
+        { "key": "Content-Disposition", "value": "attachment; filename=\"Divyanshu_Tripathi_Resume.pdf\"" },
+        { "key": "Cache-Control", "value": "public, max-age=3600" }
+      ]
+    }
+  ]
+}
