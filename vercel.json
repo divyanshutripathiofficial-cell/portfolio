@@ -2,23 +2,23 @@
   "rewrites": [
     {
       "source": "/styles.css",
-      "destination": "https://cdn.jsdelivr.net/gh/divyanshutripathiofficial-cell/portfolio@7305878b84e3db2174a0c7ab65888efbcaf98e86/styles.css"
+      "destination": "https://cdn.jsdelivr.net/gh/divyanshutripathiofficial-cell/portfolio@ca0ab8419366d6888628ea32def1a4f14e9d1490/styles.css"
     },
     {
       "source": "/script.js",
-      "destination": "https://cdn.jsdelivr.net/gh/divyanshutripathiofficial-cell/portfolio@7305878b84e3db2174a0c7ab65888efbcaf98e86/script.js"
+      "destination": "https://cdn.jsdelivr.net/gh/divyanshutripathiofficial-cell/portfolio@ca0ab8419366d6888628ea32def1a4f14e9d1490/script.js"
     },
     {
       "source": "/resume.pdf",
-      "destination": "https://cdn.jsdelivr.net/gh/divyanshutripathiofficial-cell/portfolio@7305878b84e3db2174a0c7ab65888efbcaf98e86/assets/Divyanshu_Tripathi_Resume.pdf"
+      "destination": "https://cdn.jsdelivr.net/gh/divyanshutripathiofficial-cell/portfolio@ca0ab8419366d6888628ea32def1a4f14e9d1490/assets/Divyanshu_Tripathi_Resume.pdf"
     },
     {
       "source": "/assets/profile.jpg",
-      "destination": "https://cdn.jsdelivr.net/gh/divyanshutripathiofficial-cell/portfolio@7305878b84e3db2174a0c7ab65888efbcaf98e86/assets/profile.jpg"
+      "destination": "https://cdn.jsdelivr.net/gh/divyanshutripathiofficial-cell/portfolio@ca0ab8419366d6888628ea32def1a4f14e9d1490/assets/profile.jpg"
     },
     {
       "source": "/assets/portrait.webp",
-      "destination": "https://cdn.jsdelivr.net/gh/divyanshutripathiofficial-cell/portfolio@7305878b84e3db2174a0c7ab65888efbcaf98e86/assets/portrait.webp"
+      "destination": "https://cdn.jsdelivr.net/gh/divyanshutripathiofficial-cell/portfolio@ca0ab8419366d6888628ea32def1a4f14e9d1490/assets/portrait.webp"
     }
   ],
   "headers": [
